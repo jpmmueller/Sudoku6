@@ -4,15 +4,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Sketch</title>
+    <title>Sudoku</title>
 
     <link rel="stylesheet" type="text/css" href="style.css">
 
+    <!-- deine lokale p5-Bibliothek -->
     <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
+    <!-- p5.sound ist optional -->
+    <!-- <script src="libraries/p5.sound.min.js"></script> -->
   </head>
 
   <body>
+    <div id="controls">
+      <button onclick="checkSolvable()">Prüfen (lösbar?)</button>
+      <button onclick="solveCurrentBoard()">Lösen</button>
+    </div>
+
+    <!-- Reihenfolge wichtig: erst Logik, dann UI, dann sketch -->
+    <script src="sudoku-logic.js"></script>
+    <script src="sudoku-ui.js"></script>
     <script src="sketch.js"></script>
   </body>
 </html>
