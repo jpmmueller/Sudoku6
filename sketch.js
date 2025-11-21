@@ -36,7 +36,7 @@ function setup() {
 }
 
 function draw() {
-  background(240);
+  background(100);
 
   drawGrid();
   drawCells();
@@ -71,7 +71,7 @@ function drawCells() {
         if (conflicts[row][col]) {
           fill(255, 0, 0);
         } else {
-          fill(0);
+          fill(220);
         }
         noStroke();
         textAlign(CENTER, CENTER);
@@ -88,7 +88,7 @@ function drawCells() {
 function drawSelection() {
   let { x, y } = cellToScreen(selectedRow, selectedCol);
   noFill();
-  stroke(0, 0, 255);
+  stroke(0, 50, 150);
   strokeWeight(3);
   rect(x, y, cellSize, cellSize);
 }
@@ -99,7 +99,7 @@ function drawCandidates(row, col) {
   const candidates = getCandidates(row, col);
   if (candidates.length === 0) return;
 
-  fill(80);
+  fill(180);
   noStroke();
   textAlign(CENTER, CENTER);
   textSize(cellSize * 0.2);
@@ -133,7 +133,7 @@ function mousePressed() {
 
 function keyPressed() {
   // Kandidatenmodus umschalten mit K
-  if (key === 'k' || key === 'K') {
+  if (key === 'k' || key === 'k') {
     showCandidates = !showCandidates;
     redraw();
     return;
