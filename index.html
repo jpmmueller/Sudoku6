@@ -1,23 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Sudoku</title>
+    <title>Sudoku Helper</title>
 
     <link rel="stylesheet" type="text/css" href="style.css">
 
-    <!-- deine lokale p5-Bibliothek -->
+    <!-- p5 lokal -->
     <script src="libraries/p5.min.js"></script>
-    <!-- p5.sound ist optional -->
+    <!-- p5.sound optional -->
     <!-- <script src="libraries/p5.sound.min.js"></script> -->
   </head>
 
   <body>
-    <div id="controls">
-      <button onclick="checkSolvable()">Prüfen (lösbar?)</button>
-      <button onclick="solveCurrentBoard()">Lösen</button>
+    <div id="controls" class="controls">
+      <div class="toggle-group">
+        <label class="toggle">
+          <input type="checkbox"
+                 id="toggleCandidates"
+                 checked
+                 onchange="onToggleCandidates(this)">
+          <span class="toggle-label">Kandidaten anzeigen (K)</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox"
+                 id="toggleEditMode"
+                 onchange="onToggleEditMode(this)">
+          <span class="toggle-label">Editmodus (E)</span>
+        </label>
+      </div>
+      <div class="button-group">
+        <button class="btn primary" onclick="checkSolvable()">Prüfen</button>
+        <button class="btn" onclick="solveCurrentBoard()">Lösen</button>
+      </div>
     </div>
 
     <!-- Reihenfolge wichtig: erst Logik, dann UI, dann sketch -->

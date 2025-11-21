@@ -44,7 +44,7 @@ function drawCells() {
 function drawSelection() {
   const { x, y } = cellToScreen(selectedRow, selectedCol);
   noFill();
-  stroke(0, 180, 255);
+  stroke(0, 55, 200);
   strokeWeight(3);
   rect(x, y, cellSize, cellSize);
 }
@@ -61,8 +61,11 @@ function drawCandidates(row, col) {
     if (hiddenCandidates[row][col][v]) continue;
 
     const idx = v - 1;
-    const gridRow = 2 - Math.floor(idx / 3); // 0 = oben, 2 = unten
-    const gridCol = idx % 3;                 // 0 = links, 2 = rechts
+    const gridRow = Math.floor(idx / 3); // 0 = oben, 2 = unten
+    const gridCol = idx % 3;             // 0 = links, 2 = rechts
+    // const idx = v - 1;
+    // const gridRow = 2 - Math.floor(idx / 3); // 0 = oben, 2 = unten
+    // const gridCol = idx % 3;                 // 0 = links, 2 = rechts
 
     const cx = x + (gridCol + 0.5) * (cellSize / 3);
     const cy = y + (gridRow + 0.5) * (cellSize / 3);
@@ -82,8 +85,8 @@ function drawCandidates(row, col) {
 
 // Panel mit 1..9 (3x3-Block) + Statusanzeige
 function drawNumberPanel() {
-  const panelX = originX;
-  const panelY = originY + 9 * cellSize + 30;
+  const panelX = originX - 5 * cellSize;
+  const panelY = originY + 8 * cellSize;
 
   textAlign(CENTER, CENTER);
   textSize(cellSize * 0.4);
