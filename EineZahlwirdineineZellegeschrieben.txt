@@ -1,0 +1,216 @@
+Sehr gerne — hier ist der Text als reine Kopier-Version ohne Schnickschnack.
+Du kannst ihn 1:1 markieren, kopieren und z.B. als Programmablauf_Zahleneingabe.txt speichern.
+
+WAS PASSIERT IM PROGRAMM, WENN ICH EINE ZAHL IN EINE ZELLE SCHREIBE?
+
+(bezogen auf: sketch.js, sudoku-logic.js, sudoku-ui.js)
+
+Überblick
+
+Wenn du im Sudoku-Fenster eine Zahl von 1 bis 9 über die Tastatur eingibst, wird automatisch die Funktion
+
+keyPressed()
+
+
+in sketch.js aufgerufen. Diese Funktion ist der Einstiegspunkt für alle Tastatureingaben.
+
+Ab dort entscheidet dein Programm:
+
+Ob du gerade Kandidaten bearbeitest
+
+Oder ob du eine feste Zahl ins Sudoku schreibst
+
+Danach wird das Board neu gezeichnet.
+
+Der Ablauf Schritt für Schritt
+
+Sobald du eine Zahl drückst, passiert Folgendes:
+
+p5.js merkt: Eine Taste wurde gedrückt
+
+p5.js ruft automatisch deine Funktion keyPressed() auf
+
+In keyPressed() wird geprüft:
+
+Ist es eine Zahl von "1" bis "9"?
+
+Oder eine Sondertaste wie K, E, Pfeil, Delete?
+
+Für Ziffern 1–9 läuft der relevante Code so:
+
+if (key >= '1' && key <= '9') {
+    const value = int(key);
+
+    if (showCandidates && candidateEditMode && board[selectedRow][selectedCol] === 0) {
+        // Kandidaten bearbeiten
+    } else {
+        // normale Zahl setzen
+    }
+
+    solverMessage = "";
+    redraw();
+}
+
+
+Das ist die zentrale Entscheidungsstelle.
+
+Fall A: Du bearbeitest Kandidaten (Editmodus aktiv)
+
+Dieser Fall tritt ein, wenn ALLES davon wahr ist:
+
+Kandidatenanzeige AN (showCandidates == true)
+
+Editmodus AN (candidateEditMode == true)
+
+Zelle ist leer (board[row][col] == 0)
+
+Dann interpretiert dein Programm deine Zahl nicht als "echte Sudoku-Zahl",
+sondern als Kandidaten-Ein/Aus-Schalter.
+
+Der relevante Code:
+
+if (isValueAllowed(selectedRow, selectedCol, value)) {
+    hiddenCandidates[selectedRow][selectedCol][value] =
+        !hiddenCandidates[selectedRow][selectedCol][value];
+}
+
+
+In normalen Worten:
+
+Das Programm prüft zuerst:
+Wäre diese Zahl dort nach Sudoku-Regeln überhaupt erlaubt?
+
+Wenn ja:
+Dann wird der Kandidat umgeschaltet (Toggle):
+
+War er sichtbar → wird er versteckt
+
+War er versteckt → wird er sichtbar
+
+Der Kandidat wird NICHT ins echte Sudoku-Board geschrieben.
+Er wird nur in hiddenCandidates geändert.
+
+Danach:
+
+solverMessage wird gelöscht
+
+redraw() wird aufgerufen
+
+Fall B: Du schreibst eine echte Zahl ins Sudoku
+
+Dieser Fall tritt ein, wenn:
+
+Kandidaten nicht aktiv sind
+ODER
+
+du nicht im Editmodus bist
+ODER
+
+die Zelle nicht leer ist
+
+Dann wird die Zahl wirklich ins Sudoku geschrieben.
+
+Der relevante Code:
+
+board[selectedRow][selectedCol] = value;
+recomputeConflicts();
+
+for (let v = 1; v <= 9; v++) {
+    hiddenCandidates[selectedRow][selectedCol][v] = false;
+}
+
+
+Das bedeutet konkret:
+
+Dein Programm schreibt die Zahl in das echte Sudoku-Feld:
+
+board[zeile][spalte] = value
+
+
+Danach wird eine Konfliktprüfung durchgeführt:
+
+recomputeConflicts();
+
+
+Diese Funktion prüft jede Zahl im gesamten Board:
+
+Sind irgendwo zwei gleiche Zahlen in einer Zeile?
+
+In einer Spalte?
+
+In einem 3x3 Block?
+
+Wenn ja, wird diese Zelle als Konflikt markiert.
+
+Dann werden alle alten Kandidaten dieser Zelle gelöscht:
+
+hiddenCandidates[row][col][...] = false
+
+
+Danach wird:
+
+solverMessage gelöscht
+
+redraw() aufgerufen
+
+Warum erscheint die Zahl sofort auf dem Bildschirm?
+
+Durch:
+
+redraw();
+
+
+wird deine Zeichenfunktion erneut ausgeführt:
+
+function draw() {
+    background(100);
+    drawGrid();
+    drawCells();
+    drawSelection();
+    drawNumberPanel();
+}
+
+
+In drawCells() passiert dann das:
+
+if (board[row][col] !== 0) {
+    if (conflicts[row][col]) {
+        fill(255, 80, 80);  // rot
+    } else {
+        fill(240);          // weiß
+    }
+
+    text(value, x, y);
+}
+
+
+Das heißt:
+
+Das Programm schaut direkt in dein board[][]-Array.
+
+Dort steht jetzt deine neue Zahl.
+
+Also wird sie automatisch neu gezeichnet.
+
+Stark vereinfacht gesagt
+
+Wenn du eine Zahl eingibst:
+
+keyPressed() wird aufgerufen
+
+Programm entscheidet:
+Kandidat ändern oder echte Zahl setzen
+
+Die Information wird entweder in:
+
+hiddenCandidates (für Kandidaten)
+oder
+
+board[][] (für echte Zahlen)
+gespeichert
+
+Konflikte werden neu berechnet
+
+redraw() lässt das gesamte Sudoku neu zeichnen
+
+Du siehst die neue Zahl sofort auf dem Bildschirm

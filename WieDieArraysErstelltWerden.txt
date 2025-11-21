@@ -1,0 +1,227 @@
+Super, dann schauen wir uns genau diese Array-Konstruktionen an – Schritt für Schritt und mit kleinen Beispielen. Ich bleibe bei normaler Sprache, so dass du es dir auch wieder als Textdatei sichern kannst.
+
+1. Was du schon verstanden hast: board
+
+Dein board ist ganz klassisch:
+
+let board = [
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0]
+];
+
+
+Das ist ein Array von Arrays → 9 Zeilen, jede Zeile hat 9 Spalten.
+
+Zugriff z.B. auf Feld „Zeile 3, Spalte 5“:
+
+board[2][4]   // (Index fängt bei 0 an)
+
+
+Soweit alles klar 👍
+
+2. conflicts – gleiche Form wie board, aber nur Wahr/Falsch
+
+Definition:
+
+let conflicts = Array.from({ length: 9 }, () =>
+  Array.from({ length: 9 }, () => false)
+);
+
+
+Das sieht erstmal „magisch“ aus, ist aber nichts anderes als:
+
+let conflicts = [
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false],
+  [false,false,false,false,false,false,false,false,false]
+];
+
+Was macht Array.from({ length: 9 }, () => ...)?
+
+Array.from({ length: 9 }, fn) erzeugt ein Array mit 9 Elementen.
+
+Für jedes Element wird die Funktion fn aufgerufen und deren Rückgabewert eingesetzt.
+
+Also:
+
+Array.from({ length: 3 }, () => "X");
+// Ergebnis: ["X","X","X"]
+
+
+Bei conflicts ist unsere Funktion:
+
+() => Array.from({ length: 9 }, () => false)
+
+
+Das heißt:
+
+Für jede der 9 Zeilen wird erneut ein inneres Array erzeugt, das 9 Mal false enthält.
+
+In „Deutsch“:
+
+Erzeuge ein Array mit 9 Zeilen, und jede Zeile ist ein Array mit 9 mal false.
+
+Warum nicht new Array(9).fill(false)?
+
+Weil wir für jede Zeile ein eigenes Array brauchen.
+Eine typische Falle in JS ist:
+
+let rows = new Array(9).fill(new Array(9).fill(false));
+
+
+Hier würden alle Zeilen auf dasselbe innere Array zeigen → änderst du einen Eintrag, ändert sich die ganze Spalte in allen Zeilen.
+Mit Array.from(..., () => ...) bekommst du jedes Mal ein neues inneres Array.
+
+3. hiddenCandidates – ein 3D-Array
+
+Definition:
+
+let hiddenCandidates = Array.from({ length: 9 }, () =>
+  Array.from({ length: 9 }, () => Array(10).fill(false)) // Index 0..9, 0 unbenutzt
+);
+
+
+Das ist ein Array von Array von Array.
+
+Denke so:
+
+erste Ebene: Zeile (0..8)
+
+zweite Ebene: Spalte (0..8)
+
+dritte Ebene: Zahl 0..9, wobei wir 0 ignorieren und nur 1..9 nutzen
+
+Also:
+
+hiddenCandidates[row][col][value]
+
+
+bedeutet:
+
+In Zelle (row, col) ist der Kandidat „value“ gerade versteckt (true) oder sichtbar (false).
+
+Warum Länge 10?
+
+Wir machen es uns einfach und erlauben Index 1..9 direkt als Zahl:
+
+Index 0 → wird einfach nicht benutzt
+
+Index 1 → Kandidat „1“
+
+Index 2 → Kandidat „2“
+
+…
+
+Index 9 → Kandidat „9“
+
+So können wir im Code schreiben:
+
+hiddenCandidates[row][col][value]
+
+
+statt immer value-1 rechnen zu müssen.
+
+Wie sieht das „ausgeschrieben“ aus?
+
+Stell dir eine einzelne Zelle vor, z.B. oben links (row=0, col=0):
+
+hiddenCandidates[0][0]  // ist ein Array mit 10 Booleans
+
+
+so ungefähr:
+
+[ false, false, false, false, false, false, false, false, false, false ]
+//   ^      ^
+//   0      1
+
+
+Wir benutzen die Plätze:
+
+[1] = Kandidat 1 versteckt?
+
+[2] = Kandidat 2 versteckt?
+
+…
+
+[9] = Kandidat 9 versteckt?
+
+Wenn du im Editmodus einen Kandidaten „wegklickst“, passiert:
+
+hiddenCandidates[row][col][value] = !hiddenCandidates[row][col][value];
+
+
+Also einfach an-/aus-schalten.
+
+4. Gleiche Logik mit klassischen for-Schleifen
+
+Wenn dir Array.from noch zu „magisch“ ist, kannst du dir die Konstruktionen so vorstellen:
+
+conflicts „zu Fuß“ gebaut:
+let conflicts = [];
+for (let r = 0; r < 9; r++) {
+  let row = [];
+  for (let c = 0; c < 9; c++) {
+    row.push(false);
+  }
+  conflicts.push(row);
+}
+
+hiddenCandidates „zu Fuß“ gebaut:
+let hiddenCandidates = [];
+for (let r = 0; r < 9; r++) {
+  let row = [];
+  for (let c = 0; c < 9; c++) {
+    let candidates = [];
+    for (let v = 0; v <= 9; v++) {
+      candidates.push(false);
+    }
+    row.push(candidates);
+  }
+  hiddenCandidates.push(row);
+}
+
+
+Das ist exakt dasselbe wie:
+
+let hiddenCandidates = Array.from({ length: 9 }, () =>
+  Array.from({ length: 9 }, () => Array(10).fill(false))
+);
+
+
+Nur komprimierter geschrieben.
+
+Wenn du magst, kannst du in deinem Projekt testweise die Array.from-Variante mal durch die for-Schleifen ersetzen – rein zum Verständnis. Funktioniert genauso.
+
+5. Kleine Eselsbrücke für deine drei wichtigsten Arrays
+
+board[row][col]
+→ „Was steht gerade als Zahl in dieser Zelle?“ (0 = leer)
+
+conflicts[row][col]
+→ „Ist diese Zelle im Konflikt mit den Sudoku-Regeln?“ (true/false)
+
+hiddenCandidates[row][col][value]
+→ „Ist der Kandidat value in dieser Zelle absichtlich ausgeblendet?“ (true = versteckt)
+
+Die „Form“ kann man sich so merken:
+
+board → 2D-Array von Zahlen
+
+conflicts → 2D-Array von Booleans (gleiche Größe wie board)
+
+hiddenCandidates → 3D-Array von Booleans (pro Zelle nochmal 10 Plätze)
+
+Wenn du willst, kann ich dir als nächsten Schritt auch ein ganz kleines Testskript bauen (ohne p5), das nur diese Arrays erzeugt und ein paar Werte reinschreibt/ausgibt – dann kannst du in der Browser-Konsole sehen, wie die Daten wirklich strukturiert sind.
